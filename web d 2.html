@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrendCart - Online Store</title>
+
+<style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
+    header { background: #222; color: white; padding: 20px; text-align: center; }
+    h2 { text-align: center; }
+
+    /* Product grid */
+    .product-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 30px;
+    }
+
+    .product {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .product img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    button {
+        padding: 10px 15px;
+        background: #222;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    button:hover { background: #444; }
+
+    /* Cart */
+    #cart {
+        background: white;
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        margin-bottom: 40px;
+    }
+
+    .cart-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    /* Checkout form */
+    #checkout {
+        max-width: 600px;
+        margin: 40px auto;
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        border-radius: 5px;
+        border: 1px solid #aaa;
+    }
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>TrendCart Online Store</h1>
+</header>
+
+<h2>Products</h2>
+
+<!-- PRODUCT LIST -->
+<div class="product-container">
+
+    <div class="product">
+        <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500" alt="">
+        <h3>Men's Jacket</h3>
+        <p>₹1200</p>
+        <button onclick="addToCart('Men’s Jacket', 1200)">Add to Cart</button>
+    </div>
+
+    <div class="product">
+        <img src="https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=500" alt="">
+        <h3>Wireless Headphones</h3>
+        <p>₹2500</p>
+        <button onclick="addToCart('Wireless Headphones', 2500)">Add to Cart</button>
+    </div>
+
+    <div class="product">
+        <img src="https://images.unsplash.com/photo-1602526216437-c2f1fba79a55?w=500" alt="">
+        <h3>Handmade Candle</h3>
+        <p>₹400</p>
+        <button onclick="addToCart('Handmade Candle', 400)">Add to Cart</button>
+    </div>
+
+    <div class="product">
+        <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=500" alt="">
+        <h3>Women’s Saree</h3>
+        <p>₹900</p>
+        <button onclick="addToCart('Women’s Saree', 900)">Add to Cart</button>
+    </div>
+
+</div>
+
+<!-- CART -->
+<h2>Your Cart</h2>
+<div id="cart">
+    <p>No items in cart.</p>
+</div>
+
+<!-- CHECKOUT -->
+<h2>Checkout</h2>
+<div id="checkout">
+    <form id="checkoutForm">
+        <label>Name:</label>
+        <input type="text" required>
+
+        <label>Email:</label>
+        <input type="email" required>
+
+        <label>Address:</label>
+        <input type="text" required>
+
+        <label>Card Number:</label>
+        <input type="text" maxlength="16" required>
+
+        <button type="submit" style="margin-top:20px; width:100%;">Place Order</button>
+    </form>
+
+    <p id="orderMsg" style="color: green; text-align:center; font-size:18px; margin-top:20px;"></p>
+</div>
+
+<script>
+let cart = [];
+
+// Add to cart
+function addToCart(productName, price) {
+    let item = cart.find(p => p.name === productName);
+
+    if (item) {
+        item.qty++;
+    } else {
+        cart.push({ name: productName, price: price, qty: 1 });
+    }
+
+    renderCart();
+}
+
+// Render cart UI
+function renderCart() {
+    let cartDiv = document.getElementById("cart");
+
+    if (cart.length === 0) {
+        cartDiv.innerHTML = "<p>No items in cart.</p>";
+        return;
+    }
+
+    let html = "";
+    let total = 0;
+
+    cart.forEach(item => {
+        total += item.price * item.qty;
+
+        html += `
+        <div class="cart-item">
+            <div>
+                <strong>${item.name}</strong> <br>
+                ₹${item.price} × ${item.qty}
+            </div>
+            <button onclick="removeItem('${item.name}')">Remove</button>
+        </div>`;
+    });
+
+    html += `<h3>Total: ₹${total}</h3>`;
+    cartDiv.innerHTML = html;
+}
+
+// Remove item from cart
+function removeItem(name) {
+    cart = cart.filter(p => p.name !== name);
+    renderCart();
+}
+
+// Checkout
+document.getElementById("checkoutForm").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    if (cart.length === 0) {
+        alert("Your cart is empty!");
+        return;
+    }
+
+    document.getElementById("orderMsg").innerText =
+        "🎉 Your order has been placed successfully!";
+    this.reset();
+    cart = [];
+    renderCart();
+});
+</script>
+
+</body>
+</html>
+
